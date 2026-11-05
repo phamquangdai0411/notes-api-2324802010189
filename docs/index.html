@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bài 1 - Hello Cloud</title>
+  <style>
+    body { font-family: sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #999; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Bài 1: Lập trình trên máy ảo đám mây đầu tiên</h1>
+  <p>Phạm Quang Đại - 2324802010189</p>
+
+  <h2>Bảng so sánh máy cá nhân và Codespace</h2>
+  <table>
+    <tr><th>Tiêu chí</th><th>Máy cá nhân</th><th>Codespace</th></tr>
+    <tr><td>Thời gian từ lúc bắt đầu đến khi chạy được node -v</td><td>Ước tính 10–15 phút (tải và cài Node.js, chưa đo thực tế)</td><td>Khoảng 4 phút (từ lúc bấm Create codespace đến khi Terminal sẵn sàng, khoảng 14:02)</td></tr>
+    <tr><td>Số CPU, RAM (từ API)</td><td>Intel Core i5-11400H, 6 nhân 12 luồng; RAM 15,8 GB</td><td>2 CPU, 7,8 GB RAM</td></tr>
+    <tr><td>Hệ điều hành</td><td>Windows 11</td><td>Linux 6.8.0-1064-azure</td></tr>
+    <tr><td>Cách truy cập từ thiết bị khác</td><td>Phải cấu hình mạng, mở cổng, hoặc chỉ truy cập được trong mạng LAN</td><td>Đổi cổng 3000 sang Public, mở bằng điện thoại qua địa chỉ app.github.dev, rồi đổi lại Private</td></tr>
+    <tr><td>Chi phí, đo bằng gì</td><td>Chi phí mua máy, điện, thời gian cài đặt</td><td>Codespaces storage 0,03 GB-tháng, tổng phát sinh dưới 0,01 USD, thực trả 0 USD (xem Settings, Billing, Usage); gói miễn phí có 120 core-giờ mỗi tháng</td></tr>
+  </table>
+
+  <h2>5 đặc tính NIST qua thao tác đã làm</h2>
+  <ol>
+    <li><b>Tự phục vụ theo yêu cầu:</b> tôi tự bấm Create codespace trên GitHub và có một máy ảo chạy được sau khoảng 4 phút, không cần ai cấp phát.</li>
+    <li><b>Truy cập mạng rộng:</b> tôi đổi cổng 3000 sang Public và mở API bằng điện thoại qua địa chỉ app.github.dev, rồi đổi lại Private.</li>
+    <li><b>Gộp tài nguyên:</b> API báo máy có 2 CPU và 7,8 GB RAM, tên máy (host) là codespaces-d23349, chạy trên hạ tầng dùng chung của GitHub (nhân Linux azure).</li>
+    <li><b>Co giãn nhanh:</b> tôi xóa codespace cũ và tạo codespace mới trong vài phút; khi cần máy mạnh hơn có thể chọn loại máy lớn hơn mà không phải mua phần cứng.</li>
+    <li><b>Dịch vụ đo lường được:</b> trang Billing, mục Usage, hiển thị Codespaces storage 0,03 GB-tháng, tổng phát sinh dưới 0,01 USD và số tiền phải trả là 0 USD nhờ hạn mức miễn phí.</li>
+  </ol>
+
+  <p>Mã nguồn: <a href="https://github.com/phamquangdai0411/notes-api-2324802010189">GitHub repo</a></p>
+</body>
+</html>
