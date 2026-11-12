@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bài 1 – Hello Cloud | Phạm Quang Đại</title>
+<title>Bài 1 và Bài 2 – Hello Cloud | Phạm Quang Đại</title>
 <meta name="description" content="Bài 1: Lập trình trên máy ảo đám mây đầu tiên – API Hello Cloud trên GitHub Codespaces, so sánh với máy cá nhân và 5 đặc tính NIST.">
 <style>
 :root{
@@ -182,6 +182,7 @@ footer p{font-size:14px;color:#b4b8e6;margin-top:12px;max-width:290px}
       <a href="#so-sanh">So sánh</a>
       <a href="#billing">Billing</a>
       <a href="#phan-bien">Phản biện</a>
+      <a href="#bai2">Bài 2</a>
     </nav>
     <a class="btn primary sm" href="https://github.com/phamquangdai0411/notes-api-2324802010189" target="_blank" rel="noopener">Mã nguồn →</a>
   </div>
@@ -333,6 +334,77 @@ footer p{font-size:14px;color:#b4b8e6;margin-top:12px;max-width:290px}
     <p class="note">Ghi chú: chưa thử chọn loại máy lớn hơn và chưa gọi API sau một ngày; thời gian cài Node.js trên máy cá nhân là ước tính.</p>
   </div>
 </section>
+
+<!-- BÀI 2 -->
+<section id="bai2">
+  <div class="wrap">
+    <span class="eyebrow">Bài 2 · Ảo hóa, container và mô phỏng</span>
+    <h2>Đóng gói API thành container, rồi mô phỏng trung tâm dữ liệu</h2>
+    <p class="sub">Đóng gói API của Bài 1 bằng Docker, chạy hai bản sao có giới hạn tài nguyên, phát hành image công khai trên GHCR, sau đó dùng CloudSim Plus (Java) để xem chính sách xếp máy ảo và lập lịch ảnh hưởng đến thời gian hoàn thành.</p>
+
+    <div class="trio" style="margin-top:26px">
+      <div class="big b1"><h3>Image công khai</h3><p>ghcr.io/phamquangdai0411/notes-api:1.0, kéo về chạy được không cần đăng nhập.</p><div class="shape"></div></div>
+      <div class="big b2"><h3>Giới hạn 128 MiB</h3><p>docker stats của notes2 hiện 15,33 MiB / 128 MiB.</p><div class="shape"></div></div>
+      <div class="big b3"><h3>4 lần mô phỏng</h3><p>Từ 20,1 giây (gốc) tới 45,6 giây khi nhân đôi số máy ảo.</p><div class="shape"></div></div>
+    </div>
+
+    <div class="banner" style="margin-top:26px">
+      <div>
+        <h2>Package trên GHCR</h2>
+        <p>Image notes-api:1.0 (Public). Lệnh kéo: docker pull ghcr.io/phamquangdai0411/notes-api:1.0</p>
+      </div>
+      <a class="btn white" href="https://github.com/users/phamquangdai0411/packages/container/package/notes-api" target="_blank" rel="noopener">Mở package →</a>
+    </div>
+
+    <h3 style="margin:34px 0 10px;font-size:20px">Dockerfile</h3>
+<pre>FROM node:22-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY src ./src
+ENV PORT=3000
+EXPOSE 3000
+USER node
+CMD ["node", "src/server.js"]</pre>
+    <p class="note">.dockerignore gồm node_modules, .env, .git, docs. Chạy hai bản sao: notes1 (cổng 3000, không giới hạn) và notes2 (cổng 3001, <code>--cpus=0.5 --memory=128m</code>). Hai bản trả về host khác nhau (ID container: 0bbe229088c2 và 5c557f772a01) nhưng cpus = 2 và memoryGB = 7,8 giống nhau.</p>
+
+    <h3 style="margin:34px 0 10px;font-size:20px">Bảng 1. Codespace (máy ảo) và container notes2</h3>
+    <div class="tablecard">
+      <table>
+        <thead><tr><th>Tiêu chí</th><th>Codespace (máy ảo)</th><th>Container notes2</th></tr></thead>
+        <tbody>
+          <tr><td>Thời gian khởi động</td><td>Không quá 4 phút (từ Bài 1: 13:58 chưa có máy, 14:02 Terminal sẵn sàng)</td><td>0,367 giây (<code>time docker run --rm notes-api:1.0 node -e "1"</code>)</td></tr>
+          <tr><td>Kích thước</td><td>Hạn mức đĩa 15 GB-tháng (codespace có đĩa 32 GB)</td><td>251 MB trên đĩa (63,3 MB nội dung nén), theo <code>docker images</code></td></tr>
+          <tr><td>Nhân hệ điều hành</td><td>Nhân riêng: 6.8.0-1070-azure</td><td>Dùng chung nhân với máy chủ: <code>uname -r</code> ngoài và trong container đều là 6.8.0-1070-azure</td></tr>
+          <tr><td>Mức cô lập</td><td>Mức phần cứng ảo hóa (hypervisor): mỗi máy ảo có nhân và hệ điều hành riêng</td><td>Mức tiến trình: namespace và cgroups trên cùng một nhân, nhẹ hơn nhưng cô lập yếu hơn</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:34px 0 10px;font-size:20px">Bảng 2. Mô phỏng CloudSim Plus (BasicFirstExample)</h3>
+    <p class="sub" style="margin-bottom:14px">Cấu hình gốc: 1 máy chủ 8 lõi, 2 máy ảo mỗi máy 4 lõi, 4 cloudlet mỗi cái 2 lõi và dài 10000 MI. Mỗi lần chỉ đổi một yếu tố so với bản gốc.</p>
+    <div class="tablecard">
+      <table>
+        <thead><tr><th>Lần</th><th>Thay đổi</th><th>Thời điểm hoàn thành cloudlet cuối (giây mô phỏng)</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>Giữ nguyên</td><td><span class="tag">20,1</span><br>Cả 4 cloudlet bắt đầu 0,1 và kết thúc 20,1.</td></tr>
+          <tr><td>1</td><td>Nhân đôi VMS (2 thành 4)</td><td><span class="tag">45,6</span><br>Vm 2 và Vm 3 không đặt được vì 4 × 4 = 16 lõi vượt 8 lõi của máy chủ. Broker thử lại 5 lần rồi bỏ, nên cloudlet chỉ bắt đầu lúc 25,6.</td></tr>
+          <tr><td>2</td><td>Nhân đôi CLOUDLETS (4 thành 8)</td><td><span class="tag">40,1</span><br>Chỉ 4 trong 8 cloudlet hoàn thành. Cloudlet 4 đến 7 bị cảnh báo hết RAM và băng thông của máy ảo, không chạy xong.</td></tr>
+          <tr><td>3</td><td>Đổi sang CloudletSchedulerSpaceShared</td><td><span class="tag">20,1</span><br>Giống lần 0, vì mỗi máy ảo (4 lõi) vừa đủ cho 2 cloudlet 2 lõi chạy song song.</td></tr>
+          <tr><td>Phụ</td><td>Space-shared kèm 8 cloudlet (chỉ để thảo luận)</td><td><span class="tag">40,3</span><br>Cả 8 cloudlet hoàn thành: 4 cái đầu kết thúc 20,1, 4 cái sau chạy từ 20,2 đến 40,3.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:34px 0 4px;font-size:20px">Câu hỏi phản biện Bài 2</h3>
+    <div class="qa">
+      <div class="card"><span class="q">CÂU 1</span><h3>Vì sao memoryGB vẫn bằng RAM máy chủ dù giới hạn 128 MB?</h3><p>API đọc cpus và RAM từ nhân hệ điều hành dùng chung, còn giới hạn 128 MB là cgroups áp đặt từ bên ngoài, chỉ thể hiện ở cột MEM USAGE / LIMIT của docker stats (notes2: 15,33 MiB / 128 MiB). Vượt giới hạn thì tiến trình bị kill, không nhận được thông báo gì từ API. Nên khi chạy Node.js hay Java trong container cần đặt cỡ bộ nhớ theo giới hạn thật, ví dụ <code>--max-old-space-size</code> cho Node hoặc <code>-Xmx</code> cho Java, thay vì để chương trình tự suy ra từ RAM máy chủ.</p></div>
+      <div class="card"><span class="q">CÂU 2</span><h3>Time-shared và space-shared khác nhau ra sao?</h3><p>Lần 3 (4 cloudlet) cho kết quả giống lần 0 vì tải vừa đủ sức chứa, nên chính sách chưa tạo khác biệt. Khi có 8 cloudlet, space-shared cho cả 8 xong (4 cái ở 20,1 và 4 cái ở 40,3, xếp hàng lần lượt), còn time-shared ở lần 2 chỉ có 4 cái xong và 4 cái bị đói tài nguyên. Nhà cung cấp hướng thị trường thường chọn time-shared cho gói giá rẻ để bán được nhiều khách hơn trên cùng phần cứng, đổi lại hiệu năng khó dự đoán; space-shared cho lõi riêng, dự đoán được nhưng tận dụng phần cứng kém hơn nên giá cao hơn.</p></div>
+      <div class="card"><span class="q">CÂU 3</span><h3>Mô phỏng giúp gì, và có thể sai lệch ở đâu?</h3><p>Mô phỏng cho thử nhiều cấu hình mà không tốn tiền thuê hạ tầng. Lần 1 cho thấy 4 máy ảo 4 lõi không vừa máy chủ 8 lõi ngay từ trước khi thuê thật. Sai lệch với thực tế vì mô hình đơn giản hóa: CPU lý tưởng, tác vụ có độ dài cố định, không có nhiễu từ máy lân cận, độ trễ mạng, đĩa hay lỗi phần cứng, thời gian khởi động mặc định bằng 0, và thời gian chỉ là giây mô phỏng. Kết quả cũng phụ thuộc vào tham số mặc định, ví dụ số lần broker thử lại.</p></div>
+    </div>
+    <p class="note">Ghi chú: các số liệu Bài 2 lấy từ lần chạy ngày 12/11/2026 trong GitHub Codespaces; lần chạy "Phụ" nằm ngoài 4 lần theo đề, thêm vào để làm rõ Câu 2. Câu trả lời Câu 1 về <code>--max-old-space-size</code> và <code>-Xmx</code> dựa trên tài liệu, chưa được thử trong bài này.</p>
+  </div>
+</section>
 </main>
 
 <!-- FOOTER -->
@@ -341,7 +413,7 @@ footer p{font-size:14px;color:#b4b8e6;margin-top:12px;max-width:290px}
     <div class="fgrid">
       <div>
         <div class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.5a4.5 4.5 0 0 1 .5 9z"/></svg></span>Hello Cloud</div>
-        <p>Báo cáo thực hành Bài 1 – Lập trình trên máy ảo đám mây đầu tiên.</p>
+        <p>Báo cáo thực hành Bài 1 và Bài 2 – Điện toán đám mây.</p>
       </div>
       <div>
         <h5>Liên kết</h5>
@@ -352,7 +424,8 @@ footer p{font-size:14px;color:#b4b8e6;margin-top:12px;max-width:290px}
       <div>
         <h5>Nội dung</h5>
         <a href="#nist">5 đặc tính NIST</a>
-        <a href="#phan-bien">Câu hỏi phản biện</a>
+        <a href="#phan-bien">Câu hỏi phản biện Bài 1</a>
+        <a href="#bai2">Bài 2: container và mô phỏng</a>
         <a href="#tong-quan">Tổng quan</a>
       </div>
       <div>
